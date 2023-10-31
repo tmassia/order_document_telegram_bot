@@ -10,8 +10,8 @@ from aiogram.types import (
 main_kb = [
     [KeyboardButton(text='בדיקות להזמנה'),
      KeyboardButton(text='הזמנה')],
-    [KeyboardButton(text='Мой профиль'),
-     KeyboardButton(text='Контакты')]
+    [KeyboardButton(text='שלח הזמנה'),
+     KeyboardButton(text='שלח הזמנה')]
 ]
 
 main = ReplyKeyboardMarkup(keyboard=main_kb,
@@ -19,8 +19,12 @@ main = ReplyKeyboardMarkup(keyboard=main_kb,
                            input_field_placeholder='Выберите пункт ниже')
 
 catalog = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='גילוי אש', callback_data='גילוי אש')],
-    [InlineKeyboardButton(text='כיבוי בגז', callback_data='כיבוי בגז')],
-    [InlineKeyboardButton(text='כיבוי באירוסול', callback_data='כיבוי באירוסול')],
-    [InlineKeyboardButton(text='אינטגרציה', callback_data='אינטגרציה')]
+    [InlineKeyboardButton(text='גילוי אש', callback_data='gilui_esh')],
+    [InlineKeyboardButton(text='גילוי אש', callback_data='gilui_esh')],
+
+])
+
+order = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text='מעבר לשליחת הזמנה כולל מסמך מצורף לפני', callback_data='to_order')],
+    [InlineKeyboardButton(text='מעבר לשליחת הזמנה בלי מסמך', callback_data='to_order_no_doc')]
 ])

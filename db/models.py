@@ -1,17 +1,38 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, create_engine
+from sqlalchemy import Column, String, Integer, BigInteger, VARCHAR, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
-from sqlalchemy import Column, Integer, VARCHAR, DATE
+# Create a base class for SQLAlchemy models.
+Base = declarative_base()
 
-from .base import BaseModel
+
+# Define the Client model.
+class Client(Base):
+    __tablename__ = "clients"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, autoincrement=False)
+    client_name = Column(VARCHAR, index=True, unique=False)
+    shem_hevra = Column(VARCHAR, index=True, unique=False)
+    telefon = Column(Integer, index=True)
+    bdika_gilui = relationship("BdikaGilui", back_populates="client")  # Relationship with BdikaGilui model
 
 
-class User(BaseModel):
-    __tablename__ = 'users'
+# Define the BdikaGilui model.
+""" 
+var = BG - that mean it is from class BdikaGilui
+"""
 
-    # telegram user_id
-    user_id = Column(Integer, unique=True, nullable=False, primary_key=True)
-    # telegram user_id
-    user_name = Column(VARCHAR(32), unique=False, nullable=False)
 
-    def __str__(self) -> str:
-        return f"<User:(self_id)>"
+class BdikaGilui(Base):
+    __tablename__ = "bdikotgilui"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    makom_shembg = Column(VARCHAR, index=True)
+    makom_yehudbg = Column(VARCHAR, index=True)
+    makom_ktovetbg = Column(VARCHAR, index=True)
+    makom_locationbg = Column(VARCHAR, index=True)
+    kamut_galaimbg = Column(Integer, index=True)
+    check_datebg = Column(VARCHAR, index=True)
+    document_namebg = Column(VARCHAR, index=True)
+    file_uploadbg = Column(VARCHAR, index=True)
+    id_order = Column(Integer, ForeignKey('clients.id'))  # Foreign key relationship with Client model
+    client = relationship("Client", back_populates="bdika_gilui")  # Relationship with Client model
