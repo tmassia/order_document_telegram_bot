@@ -19,12 +19,13 @@ main = ReplyKeyboardMarkup(keyboard=main_kb,
                            input_field_placeholder='Выберите пункт ниже')
 
 catalog = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='גילוי אש', callback_data='gilui_esh')],
-    [InlineKeyboardButton(text='גילוי אש', callback_data='gilui_esh')],
+    [InlineKeyboardButton(text='גילוי אש', callback_data='gilui_esh')]
 
 ])
 
 order = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text='מעבר לשליחת הזמנה כולל מסמך מצורף לפני', callback_data='to_order')],
+    [InlineKeyboardButton(text='מעבר לשליחת הזמנה כולל מסמך מצורף לפני', callback_data='to_order')]
+])
+order_no_doc = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='מעבר לשליחת הזמנה בלי מסמך', callback_data='to_order_no_doc')]
 ])
