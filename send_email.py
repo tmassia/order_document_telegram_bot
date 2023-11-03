@@ -130,15 +130,12 @@ async def send_email_without_attachment(client_data=None, bdika_gilui_data=None)
             'makom_locationbg': 'כתובת מקום הבדיקה',
             'check_datebg': 'תאריך הבדיקה',
         }
-
         client_details = '\n'.join(f"{field_names.get(key, key)}: {value}" for key, value in client_data.items())
         bdika_gilui_details = '\n'.join(
             f"{field_names.get(key, key)}: {value}" for key, value in bdika_gilui_data[0].items()
         )
-
         client_details_html = client_details.replace('\n', '<br>')
         bdika_gilui_details_html = bdika_gilui_details.replace('\n', '<br>')
-
         body_with_details = f"""<html>
         <head></head>
         <body dir='rtl'>
@@ -152,9 +149,7 @@ async def send_email_without_attachment(client_data=None, bdika_gilui_data=None)
         {bdika_gilui_details_html}
         </body>
         </html>"""
-
         msg.attach(MIMEText(body_with_details, 'html'))
-
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.login(sender_email, app_password)
         server.sendmail(sender_email, email_to, msg.as_string())

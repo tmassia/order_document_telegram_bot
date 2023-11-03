@@ -206,7 +206,13 @@ async def process_proceed_to_order(callback: types.CallbackQuery, state: FSMCont
 
 # Callback handler for choosing not to upload a document
 @bdika_gilui_router.callback_query(F.data == "no_upload")
-async def process_no_upload_document(callback: types.CallbackQuery):
+async def process_no_upload_document(callback: types.CallbackQuery, state: FSMContext):
+    await state.set_state(BdikaGiluiForm.FileNoUploadBG)
+    data = await state.get_data()
+    client_id = data.get('client_id')  # Используем правильный ключ
+    bdika_gilui_id = data.get('bdika_gilui_id')
+    print(f"Debug: client_id = {client_id}")
+    print(f"Debug: bdika_gilui_id = {bdika_gilui_id}")
     await ask_for_next_step_no_doc(callback.message)
 
 
@@ -216,28 +222,34 @@ async def ask_for_next_step_no_doc(message: Message):
 
 # Callback handler for proceeding to the order no_doc
 @bdika_gilui_router.callback_query(F.data == "to_order_no_doc")
-async def process_proceed_to_order(callback: types.CallbackQuery, state: FSMContext):
+async def process_proceed_to_order_no_doc(callback: types.CallbackQuery, state: FSMContext):
     async with AsyncSessionLocal() as session:
         try:
             data = await state.get_data()
+            # Создаем объект запроса и фильтруем его по ID
             client_id = data.get('client_id')  # Используем правильный ключ
+            bdika_gilui_id = data.get('bdika_gilui_id')
             print(f"Debug: client_id = {client_id}")
-
+            print(f"Debug: bdika_gilui_id = {bdika_gilui_id}")
             if client_id is None:
                 await callback.message.answer("טעות: client_id not found.")
                 return
-
             client_data = await session.execute(select(Client).filter_by(id=client_id))
             client_data = client_data.scalar_one_or_none()
             # Извлекаем все поля
             all_client_data = {column.name: getattr(client_data, column.name) for column in Client.__table__.columns}
-
-            bdika_gilui_data = await session.execute(select(BdikaGilui).filter_by(id_order=client_id))
-            bdika_gilui_data = bdika_gilui_data.scalars().all()
-            all_bdika_gilui_data = [
-                {column.name: getattr(record, column.name) for column in BdikaGilui.__table__.columns} for record in
-                bdika_gilui_data]
-
+            try:
+                bdika_gilui_data = await session.execute(select(BdikaGilui).filter_by(id_order=bdika_gilui_id))
+                bdika_gilui_data = bdika_gilui_data.scalars().all()
+                all_bdika_gilui_data = [
+                    {column.name: getattr(record, column.name) for column in BdikaGilui.__table__.columns} for record in
+                    bdika_gilui_data]
+            except Exception as e:
+                await callback.message.answer(f"Error fetching BdikaGilui data: {e}")
+                await callback.message.answer(f"Error sending email: {e}")
+                logger.error(f"Exception occurred: {e}")
+                logger.error(traceback.format_exc())
+                raise
             # Оставляем только нужные поля
             required_client_fields = ['id', 'client_name', 'shem_hevra', 'telefon']
             required_bdika_gilui_fields = ['id', 'makom_shembg', 'makom_yehudbg', 'makom_ktovetbg', 'kamut_galaimbg',
@@ -251,11 +263,15 @@ async def process_proceed_to_order(callback: types.CallbackQuery, state: FSMCont
             if not filtered_client_data or not filtered_bdika_gilui_data:
                 await callback.message.answer("טעות מאגר מידע:")
                 return
-
-            await send_email_without_attachment(client_data=filtered_client_data,
-                                                bdika_gilui_data=filtered_bdika_gilui_data
-                                                )
-            await callback.message.answer("הזמנה נשלחה בהצלחה!=)")
+            try:
+                await send_email_without_attachment(client_data=filtered_client_data,
+                                                    bdika_gilui_data=filtered_bdika_gilui_data
+                                                    )
+                await callback.message.answer("הזמנה נשלחה בהצלחה!=)")
+            except Exception as e:
+                await callback.message.answer(f"טעות בשליחת דואל:{e}")
+                logger.error(f"Exception occurred: {e}")
+                logger.error(traceback.format_exc())
         except Exception as e:
             await callback.message.answer(f"טעות בשליחת דואל:{e}")
             logger.error(f"Exception occurred: {e}")

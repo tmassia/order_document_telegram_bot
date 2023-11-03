@@ -16,5 +16,6 @@ class BdikaGiluiForm(StatesGroup):
     MakomKtovetBG = State()  # State for entering detailed address
     MakomLocationBG = State()  # State for entering location details
     KamutGalaimBG = State()  # State for entering quantity of items
-    FileUploadBG = State()  # State for uploading a file
     CheckDateBG = State()  # State for entering check date
+    FileUploadBG = State()  # State for uploading a file
+    FileNoUploadBG = State()  # State for no_uploading a file
